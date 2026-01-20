@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ESP8266 Light Control</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f0f2f5; text-align: center; margin: 0; padding: 20px; }
+        .container { max-width: 400px; margin: auto; padding: 30px; background-color: #ffffff; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        h2 { color: #1a73e8; margin-bottom: 25px; }
+        .status-box { background: #f8f9fa; padding: 15px; border-radius: 10px; margin-bottom: 20px; border-left: 5px solid #1a73e8; }
+        p { font-size: 18px; margin: 10px 0; color: #3c4043; }
+        .value { font-weight: bold; color: #d93025; }
+        .btn-group { display: flex; flex-direction: column; gap: 10px; }
+        button { padding: 12px; font-size: 16px; border: none; border-radius: 8px; cursor: pointer; transition: 0.3s; font-weight: bold; }
+        .on { background-color: #34a853; color: white; }
+        .on:hover { background-color: #2d8e47; }
+        .off { background-color: #ea4335; color: white; }
+        .off:hover { background-color: #d33828; }
+        .auto { background-color: #1a73e8; color: white; }
+        .auto:hover { background-color: #1557b0; }
+        .footer { margin-top: 20px; font-size: 12px; color: #70757a; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>ระบบควบคุมแสงสว่าง</h2>
+        
+        <div class="status-box">
+            <p>ความสว่าง: <span class="value">%LIGHT_VAL%</span></p>
+            <p>สถานะ LED: <b>%LED_STATUS%</b></p>
+            <p>โหมด: <b>%MODE%</b></p>
+        </div>
+
+        <div class="btn-group">
+            <a href="/on"><button class="on">เปิดไฟ (Manual)</button></a>
+            <a href="/off"><button class="off">ปิดไฟ (Manual)</button></a>
+            <a href="/auto"><button class="auto">โหมดอัตโนมัติ</button></a>
+        </div>
+
+        <p class="footer">หน้าเว็บจะอัปเดตเมื่อกดปุ่มหรือรีเฟรช</p>
+    </div>
+</body>
+</html>
