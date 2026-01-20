@@ -3,42 +3,97 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ESP8266 Light Control</title>
+    <title>ESP8266 Smart Light</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f0f2f5; text-align: center; margin: 0; padding: 20px; }
-        .container { max-width: 400px; margin: auto; padding: 30px; background-color: #ffffff; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        h2 { color: #1a73e8; margin-bottom: 25px; }
-        .status-box { background: #f8f9fa; padding: 15px; border-radius: 10px; margin-bottom: 20px; border-left: 5px solid #1a73e8; }
-        p { font-size: 18px; margin: 10px 0; color: #3c4043; }
-        .value { font-weight: bold; color: #d93025; }
-        .btn-group { display: flex; flex-direction: column; gap: 10px; }
-        button { padding: 12px; font-size: 16px; border: none; border-radius: 8px; cursor: pointer; transition: 0.3s; font-weight: bold; }
-        .on { background-color: #34a853; color: white; }
-        .on:hover { background-color: #2d8e47; }
-        .off { background-color: #ea4335; color: white; }
-        .off:hover { background-color: #d33828; }
-        .auto { background-color: #1a73e8; color: white; }
-        .auto:hover { background-color: #1557b0; }
-        .footer { margin-top: 20px; font-size: 12px; color: #70757a; }
+        :root {
+            --primary: #1a73e8;
+            --success: #34a853;
+            --danger: #ea4335;
+            --bg: #f8f9fa;
+        }
+        body { 
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
+            background: linear-gradient(135deg, #e0eafc 0%, #cfdef3 100%);
+            margin: 0; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh;
+        }
+        .container { 
+            width: 100%; max-width: 420px; background: white; 
+            border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); 
+            padding: 30px; box-sizing: border-box;
+        }
+        h2 { color: #202124; margin-bottom: 5px; font-weight: 600; }
+        .subtitle { color: #5f6368; font-size: 14px; margin-bottom: 25px; }
+        
+        /* การ์ดแสดงค่าแสง */
+        .sensor-card {
+            background: var(--bg); border-radius: 16px; padding: 20px; margin-bottom: 20px;
+            transition: 0.3s; border: 1px solid #eee;
+        }
+        .light-value { font-size: 48px; font-weight: bold; color: var(--primary); margin: 10px 0; }
+        
+        /* แถบ Progress Bar แสดงระดับแสง */
+        .progress-container { background: #ddd; border-radius: 10px; height: 10px; width: 100%; margin: 10px 0; overflow: hidden; }
+        .progress-bar { 
+            background: var(--primary); height: 100%; 
+            width: %LIGHT_PERCENT%%; /* คำนวณเป็น % จาก 0-1023 */
+            transition: width 0.5s ease-in-out;
+        }
+
+        /* ส่วนแสดงสถานะ */
+        .status-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 25px; }
+        .status-item { background: #f1f3f4; padding: 12px; border-radius: 12px; font-size: 14px; }
+        .status-item i { margin-right: 5px; color: var(--primary); }
+
+        /* ปุ่มกด */
+        .btn-group { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .btn-group a { text-decoration: none; }
+        .full-width { grid-column: span 2; }
+        
+        button {
+            width: 100%; padding: 14px; font-size: 16px; border: none; border-radius: 12px;
+            cursor: pointer; transition: all 0.2s ease; font-weight: 600;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+        }
+        button:active { transform: scale(0.97); }
+        
+        .on { background-color: var(--success); color: white; box-shadow: 0 4px 12px rgba(52,168,83,0.3); }
+        .off { background-color: var(--danger); color: white; box-shadow: 0 4px 12px rgba(234,67,53,0.3); }
+        .auto { background-color: var(--primary); color: white; box-shadow: 0 4px 12px rgba(26,115,232,0.3); }
+        
+        .footer { margin-top: 25px; font-size: 12px; color: #9aa0a6; }
     </style>
 </head>
 <body>
     <div class="container">
-        <h2>ระบบควบคุมแสงสว่าง</h2>
+        <i class="fas fa-microchip" style="font-size: 30px; color: var(--primary);"></i>
+        <h2>Smart Light Control</h2>
+        <p class="subtitle">ระบบควบคุมไฟอัจฉริยะ ESP8266</p>
         
-        <div class="status-box">
-            <p>ความสว่าง: <span class="value">%LIGHT_VAL%</span></p>
-            <p>สถานะ LED: <b>%LED_STATUS%</b></p>
-            <p>โหมด: <b>%MODE%</b></p>
+        <div class="sensor-card">
+            <p style="margin:0; font-size: 14px; color: #5f6368;">ระดับความสว่าง</p>
+            <div class="light-value">%LIGHT_VAL%</div>
+            <div class="progress-container">
+                <div class="progress-bar"></div>
+            </div>
+        </div>
+
+        <div class="status-grid">
+            <div class="status-item">
+                <i class="fas fa-lightbulb"></i> ไฟ: <b>%LED_STATUS%</b>
+            </div>
+            <div class="status-item">
+                <i class="fas fa-cog"></i> <b>%MODE%</b>
+            </div>
         </div>
 
         <div class="btn-group">
-            <a href="/on"><button class="on">เปิดไฟ (Manual)</button></a>
-            <a href="/off"><button class="off">ปิดไฟ (Manual)</button></a>
-            <a href="/auto"><button class="auto">โหมดอัตโนมัติ</button></a>
+            <a href="/on"><button class="on"><i class="fas fa-power-off"></i> เปิดไฟ</button></a>
+            <a href="/off"><button class="off"><i class="fas fa-moon"></i> ปิดไฟ</button></a>
+            <a href="/auto" class="full-width"><button class="auto"><i class="fas fa-robot"></i> เปิดโหมดอัตโนมัติ</button></a>
         </div>
 
-        <p class="footer">หน้าเว็บจะอัปเดตเมื่อกดปุ่มหรือรีเฟรช</p>
+        <p class="footer"><i class="fas fa-sync-alt"></i> อัปเดตล่าสุดเมื่อมีการสั่งการ</p>
     </div>
 </body>
 </html>
